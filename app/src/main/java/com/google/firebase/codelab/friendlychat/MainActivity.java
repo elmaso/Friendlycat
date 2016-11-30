@@ -115,6 +115,9 @@ public class MainActivity extends AppCompatActivity
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
     private FirebaseAnalytics mFirebaseAnalytics;
 
+    //AdMob
+    private AdView mAdView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,6 +219,11 @@ public class MainActivity extends AppCompatActivity
         mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
         mMessageRecyclerView.setAdapter(mFirebaseAdapter);
 
+        // Initialize and request AdMob ad.
+        mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
         // Initialize Firebase Measurement.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
@@ -313,16 +321,25 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onPause() {
+        if (mAdView != null) {
+            mAdView.pause();
+        }
         super.onPause();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        if (mAdView != null) {
+            mAdView.resume();
+        }
     }
 
     @Override
     public void onDestroy() {
+        if (mAdView != null) {
+            mAdView.destroy();
+        }
         super.onDestroy();
     }
 
