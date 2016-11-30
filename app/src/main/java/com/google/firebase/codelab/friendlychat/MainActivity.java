@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity
     private FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder>
             mFirebaseAdapter;
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
 
     @Override
@@ -214,6 +215,9 @@ public class MainActivity extends AppCompatActivity
 
         mMessageRecyclerView.setLayoutManager(mLinearLayoutManager);
         mMessageRecyclerView.setAdapter(mFirebaseAdapter);
+
+        // Initialize Firebase Measurement.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         // Initialize Firebase Remote Config.
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
@@ -396,11 +400,20 @@ public class MainActivity extends AppCompatActivity
 
         if (requestCode == REQUEST_INVITE) {
             if (resultCode == RESULT_OK) {
+                // Use Firebase Measurement to log that invitation was sent.
+                Bundle payload = new Bundle();
+                payload.putString(FirebaseAnalytics.Param.VALUE, "inv_sent");
+
                 // Check how many invitations were sent.
                 String[] ids = AppInviteInvitation
                         .getInvitationIds(resultCode, data);
                 Log.d(TAG, "Invitations sent: " + ids.length);
             } else {
+                // Use Firebase Measurement to log that invitation was not sent
+                Bundle payload = new Bundle();
+                payload.putString(FirebaseAnalytics.Param.VALUE, "inv_not_sent");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, payload);
+
                 // Sending failed or it was canceled, show failure message to
                 // the user
                 Log.d(TAG, "Failed to send invitation.");
